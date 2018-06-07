@@ -1,5 +1,7 @@
 package Streaming_test
 
+import java.text.SimpleDateFormat
+
 import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.streaming.{Seconds, State, StateSpec, StreamingContext}
 import org.apache.log4j.{Level, Logger}
@@ -20,8 +22,13 @@ object Receive_Streaming{
     // val lines = ssc.textFileStream("hdfs://localhost:9000/user/hadoop/Streaming_test")
     val logDS = lines.map(_.split(" "))
       .filter(_(9) == "-")
-      .map((l: Array[String]) => Array(l(0), l(1), l(9)).mkString(";"))
-    // val wordDstream = lines.flatMap(_.split(" ")).map(x => (x, 1)).reduceByKey(_ + _)
+      .map((l: Array[String]) => {
+        val datetimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val datetimeString = Array(l(0), l(1)).mkString(" ")
+        val formattedDate = datetimeFormat.parse(datetimeString)
+        (l(9), formattedDate)
+      })
+// val wordDstream = lines.flatMap(_.split(" ")).map(x => (x, 1)).reduceByKey(_ + _)
 
 //    val mappingFunc = (word: String, one: Option[Int], state: State[Int]) => {
 //      val sum = one.getOrElse(0) + state.getOption.getOrElse(0)
